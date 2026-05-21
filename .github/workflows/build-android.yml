@@ -26,7 +26,7 @@ jobs:
 
       - name: Prepare Web Assets
         run: |
-          mkdir www
+          mkdir -p www
           cp index.html styles.css app.js www/
 
       - name: Sync Capacitor Android
