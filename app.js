@@ -369,5 +369,137 @@ function updateCostCalc() {
     document.getElementById('modal-total-cost').innerText = '$' + totalCost.toFixed(2);
 }
 
+// --- Add Material / Printer Modals ---
+function setupAddModals() {
+    const addMatModal = document.getElementById('add-material-modal');
+    const addPrintModal = document.getElementById('add-printer-modal');
+    
+    document.getElementById('btn-add-material').addEventListener('click', () => {
+        addMatModal.classList.remove('hidden');
+    });
+    document.getElementById('close-add-material').addEventListener('click', () => {
+        addMatModal.classList.add('hidden');
+    });
+    
+    document.getElementById('btn-add-printer').addEventListener('click', () => {
+        addPrintModal.classList.remove('hidden');
+    });
+    document.getElementById('close-add-printer').addEventListener('click', () => {
+        addPrintModal.classList.add('hidden');
+    });
+
+    // Material Search
+    const matSearchInput = document.getElementById('search-material-input');
+    const matSearchResults = document.getElementById('search-material-results');
+    matSearchInput.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase();
+        matSearchResults.innerHTML = '';
+        if (!q) return;
+        const matches = db.filaments.filter(f => f.name.toLowerCase().includes(q) || f.brand.toLowerCase().includes(q));
+        matches.forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'p-2 bg-surface-container-low border border-outline-variant text-sm cursor-pointer hover:bg-surface-container-high transition-colors text-on-surface flex justify-between';
+            div.innerHTML = `<span>${f.brand} ${f.name}</span><span class="text-primary text-xs font-label-caps">RESTOCK</span>`;
+            div.addEventListener('click', async () => {
+                f.weight_remaining = 1000;
+                if (useSupabase) {
+                    await supabaseClient.from('filaments').update({ weight_remaining: 1000 }).eq('id', f.id);
+                }
+                saveLocalData();
+                renderAll();
+                addMatModal.classList.add('hidden');
+                matSearchInput.value = '';
+            });
+            matSearchResults.appendChild(div);
+        });
+    });
+
+    // Printer Search
+    const printSearchInput = document.getElementById('search-printer-input');
+    const printSearchResults = document.getElementById('search-printer-results');
+    printSearchInput.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase();
+        printSearchResults.innerHTML = '';
+        if (!q) return;
+        const matches = db.printers.filter(p => p.model.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+        matches.forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'p-2 bg-surface-container-low border border-outline-variant text-sm cursor-pointer hover:bg-surface-container-high transition-colors text-on-surface flex justify-between';
+            div.innerHTML = `<span>${p.brand} ${p.model}</span><span class="text-primary text-xs font-label-caps">MARK IDLE</span>`;
+            div.addEventListener('click', async () => {
+                p.status = 'idle';
+                if (useSupabase) {
+                    await supabaseClient.from('printers').update({ status: 'idle' }).eq('id', p.id);
+                }
+                saveLocalData();
+                renderAll();
+                addPrintModal.classList.add('hidden');
+                printSearchInput.value = '';
+            });
+            printSearchResults.appendChild(div);
+        });
+    });
+
+    // Create Custom Material
+    document.getElementById('btn-create-material').addEventListener('click', async () => {
+        const brand = document.getElementById('new-mat-brand').value;
+        const name = document.getElementById('new-mat-name').value;
+        const type = document.getElementById('new-mat-type').value || 'PLA';
+        const color = document.getElementById('new-mat-color').value || '#ffffff';
+        const sku = document.getElementById('new-mat-sku').value || null;
+        const rrp = parseFloat(document.getElementById('new-mat-rrp').value || 0);
+        const url = document.getElementById('new-mat-url').value || null;
+
+        if (!brand || !name) return alert("Brand and Name are required");
+
+        const newMat = {
+            id: crypto.randomUUID(),
+            brand, name, type, color,
+            sku, rrp, url,
+            weight_total: 1000,
+            weight_remaining: 1000
+        };
+
+        if (useSupabase) {
+            const { error } = await supabaseClient.from('filaments').insert([newMat]);
+            if (error) return alert("Error saving to DB: " + error.message);
+        }
+        
+        db.filaments.push(newMat);
+        saveLocalData();
+        renderAll();
+        addMatModal.classList.add('hidden');
+        
+        ['new-mat-brand', 'new-mat-name', 'new-mat-type', 'new-mat-color', 'new-mat-sku', 'new-mat-rrp', 'new-mat-url'].forEach(id => document.getElementById(id).value = '');
+    });
+
+    // Create Custom Printer
+    document.getElementById('btn-create-printer').addEventListener('click', async () => {
+        const brand = document.getElementById('new-print-brand').value;
+        const model = document.getElementById('new-print-model').value;
+
+        if (!brand || !model) return alert("Brand and Model are required");
+
+        const newPrint = {
+            id: crypto.randomUUID(),
+            brand, model, status: 'idle',
+            nozzle_temp: 0, bed_temp: 0, fan_speed: 0
+        };
+
+        if (useSupabase) {
+            const { error } = await supabaseClient.from('printers').insert([newPrint]);
+            if (error) return alert("Error saving to DB: " + error.message);
+        }
+        
+        db.printers.push(newPrint);
+        saveLocalData();
+        renderAll();
+        addPrintModal.classList.add('hidden');
+        
+        document.getElementById('new-print-brand').value = '';
+        document.getElementById('new-print-model').value = '';
+    });
+}
+
 // Start
 document.addEventListener('DOMContentLoaded', initApp);
