@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FORGE_MANAGER</title>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#131313",
+                        "inverse-primary": "#c00000",
+                        "on-tertiary-fixed": "#1b1b1d",
+                        "on-tertiary-fixed-variant": "#474648",
+                        "error-container": "#93000a",
+                        "primary-fixed-dim": "#ffb4a8",
+                        "secondary-fixed-dim": "#ffb77f",
+                        "outline-variant": "#5e3f3a",
+                        "background": "#131313",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-low": "#1c1b1b",
+                        "surface-variant": "#353534",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#ff8a00",
+                        "primary-container": "#cc0000",
+                        "on-surface": "#e5e2e1",
+                        "surface": "#131313",
+                        "primary": "#ffb4a8",
+                        "surface-container-high": "#2a2a2a",
+                        "outline": "#ae8882",
+                        "secondary": "#ffb77f",
+                        "surface-container-highest": "#353534",
+                        "surface-container": "#201f1f",
+                        "on-background": "#e5e2e1",
+                        "on-surface-variant": "#e8bdb6"
+                    },
+                    spacing: {
+                        "xs": "4px", "sm": "8px", "md": "16px", "lg": "24px", "xl": "40px",
+                        "gutter": "16px", "margin-mobile": "16px", "margin-desktop": "32px"
+                    },
+                    fontFamily: {
+                        "label-caps": ["JetBrains Mono"],
+                        "headline-md": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "data-display": ["JetBrains Mono"],
+                        "body-md": ["Geist"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-24 font-body-md industrial-grid">
+
+    <!-- Top Navigation -->
+    <header class="w-full top-0 sticky z-50 bg-surface border-b border-outline-variant flex items-center justify-between px-margin-mobile py-2">
+        <div class="flex items-center gap-xs">
+            <span class="material-symbols-outlined text-primary-container text-[24px]">precision_manufacturing</span>
+            <h1 class="font-label-caps text-lg font-bold tracking-widest text-primary-container uppercase hidden md:block ml-2">FORGE_MANAGER</h1>
+        </div>
+        <div class="flex items-center gap-md">
+            <div class="hidden md:flex gap-md px-md" id="desktop-nav">
+                <button data-tab="tab-dashboard" class="nav-btn font-label-caps text-xs text-primary-container hover:bg-surface-container-high px-sm py-xs rounded min-touch-target">DASHBOARD</button>
+                <button data-tab="tab-tasks" class="nav-btn font-label-caps text-xs text-on-surface-variant hover:bg-surface-container-high px-sm py-xs rounded min-touch-target">TASKS</button>
+                <button data-tab="tab-materials" class="nav-btn font-label-caps text-xs text-on-surface-variant hover:bg-surface-container-high px-sm py-xs rounded min-touch-target">MATERIALS</button>
+            </div>
+            <button id="btn-config" class="min-touch-target text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">cloud_sync</span>
+            </button>
+            <div class="relative w-9 h-9 rounded border border-outline-variant overflow-hidden group cursor-pointer bg-surface-container-high flex items-center justify-center">
+                <span class="material-symbols-outlined text-on-surface-variant">person</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-[1440px] mx-auto px-margin-mobile mt-lg space-y-xl">
+        
+        <!-- Tab: Dashboard -->
+        <div id="tab-dashboard" class="tab-content active space-y-md">
+            <div class="flex items-center justify-between">
+                <h2 class="font-label-caps text-xs text-on-surface-variant flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-[16px]">warning</span> CRITICAL_INVENTORY
+                </h2>
+            </div>
+            <div id="dashboard-alerts" class="flex overflow-x-auto gap-md pb-2 no-scrollbar">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="flex items-center justify-between mt-8">
+                <h2 class="font-label-caps text-xs text-on-surface-variant flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-[16px]">pending_actions</span> ACTIVE_QUEUE
+                </h2>
+            </div>
+            <div id="dashboard-queue" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Tab: Tasks -->
+        <div id="tab-tasks" class="tab-content space-y-md">
+            <div class="flex items-center justify-between">
+                <h2 class="font-label-caps text-xs text-on-surface-variant flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-[16px]">list_alt</span> PRINT_JOBS
+                </h2>
+                <button id="btn-add-task" class="min-touch-target p-xs bg-primary-container text-white rounded font-label-caps text-xs px-4">
+                    + NEW JOB
+                </button>
+            </div>
+            <div class="bg-surface-container-low border border-outline-variant rounded-xl overflow-hidden">
+                <table class="w-full text-left border-collapse hidden md:table">
+                    <thead class="bg-surface-container font-label-caps text-xs text-on-surface-variant">
+                        <tr>
+                            <th class="p-sm border-b border-outline-variant">Job Name</th>
+                            <th class="p-sm border-b border-outline-variant">Printer</th>
+                            <th class="p-sm border-b border-outline-variant">Material</th>
+                            <th class="p-sm border-b border-outline-variant">Status</th>
+                            <th class="p-sm border-b border-outline-variant text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasks-table-body" class="font-body-md text-sm">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+                <div id="tasks-mobile-list" class="md:hidden flex flex-col divide-y divide-outline-variant">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Materials -->
+        <div id="tab-materials" class="tab-content space-y-md">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-label-caps text-xs text-on-surface-variant flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-[16px]">inventory_2</span> INVENTORY_HUB
+                </h2>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-sm mb-lg">
+                <div class="flex-1 flex items-center bg-surface-container-low border border-outline-variant px-md py-sm rounded-xl focus-within:border-primary transition-all">
+                    <span class="material-symbols-outlined text-on-surface-variant mr-sm">search</span>
+                    <input type="text" class="bg-transparent border-none focus:ring-0 text-on-surface w-full placeholder-outline-variant outline-none" placeholder="Search filaments...">
+                </div>
+            </div>
+            <div id="materials-list" class="space-y-sm">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface-container-low border-t border-outline-variant flex justify-around items-center h-16 px-gutter pb-safe left-0 right-0" id="mobile-nav">
+        <div data-tab="tab-dashboard" class="nav-btn active flex flex-col items-center justify-center text-primary-container active:scale-90 transition-all cursor-pointer w-1/4 h-full">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="font-label-caps text-[10px] mt-1">Dashboard</span>
+        </div>
+        <div data-tab="tab-tasks" class="nav-btn flex flex-col items-center justify-center text-on-surface-variant opacity-60 active:scale-90 transition-all cursor-pointer w-1/4 h-full">
+            <span class="material-symbols-outlined">add_box</span>
+            <span class="font-label-caps text-[10px] mt-1">Tasks</span>
+        </div>
+        <div data-tab="tab-materials" class="nav-btn flex flex-col items-center justify-center text-on-surface-variant opacity-60 active:scale-90 transition-all cursor-pointer w-1/4 h-full">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+            <span class="font-label-caps text-[10px] mt-1">Materials</span>
+        </div>
+    </nav>
+
+    <!-- MODAL: Log Completed Print -->
+    <div id="completion-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
+        <div class="w-full max-w-lg bg-surface border border-outline shadow-[0_0_50px_rgba(192,0,0,0.1)] animate-in fade-in zoom-in duration-300">
+            <div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container-high">
+                <div class="flex items-center gap-md">
+                    <span class="material-symbols-outlined text-primary-container">check_circle</span>
+                    <h2 class="font-label-caps text-xs text-on-surface tracking-widest uppercase">LOG_COMPLETED_PRINT</h2>
+                </div>
+                <button id="close-modal" class="text-on-surface-variant hover:text-primary transition-colors p-2 -mr-2">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-gutter md:p-lg space-y-lg">
+                <div class="flex items-center justify-between p-md bg-surface-container-low border border-outline-variant">
+                    <div class="space-y-1">
+                        <span class="block font-label-caps text-[10px] text-on-surface-variant uppercase">Active Job</span>
+                        <span id="modal-job-name" class="font-data-md text-primary-container tracking-wider">Unknown</span>
+                    </div>
+                    <div class="text-right space-y-1">
+                        <span class="block font-label-caps text-[10px] text-on-surface-variant uppercase">Filament</span>
+                        <span id="modal-filament-sku" class="font-data-md text-on-surface/70">Unknown</span>
+                    </div>
+                </div>
+                <div class="space-y-sm">
+                    <div class="flex justify-between items-end">
+                        <label class="font-label-caps text-xs text-on-surface-variant uppercase">Material Unit Cost ($/kg)</label>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant font-data-md pointer-events-none">$</div>
+                        <input id="modal-unit-cost" type="number" step="0.01" value="25.00" class="w-full bg-surface-container-lowest border border-outline-variant pl-xl pr-xl py-lg font-data-lg text-on-surface focus:border-inverse-primary outline-none text-2xl">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-md">
+                    <div class="space-y-sm">
+                        <span class="font-label-caps text-xs text-on-surface-variant uppercase">Net Usage</span>
+                        <div class="bg-surface-container-low border border-outline-variant p-md flex items-center justify-between">
+                            <span id="modal-net-usage" class="font-data-lg text-on-surface">0</span>
+                            <span class="font-label-caps text-[10px] text-on-surface-variant">GRM</span>
+                        </div>
+                    </div>
+                    <div class="space-y-sm">
+                        <span class="font-label-caps text-xs text-on-surface-variant uppercase">Est. Total Cost</span>
+                        <div class="bg-surface-container-low border border-outline-variant p-md flex items-center justify-between">
+                            <span id="modal-total-cost" class="font-data-lg text-primary-container">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-gutter md:p-md border-t border-outline-variant bg-surface-container-high flex gap-md">
+                <button id="btn-save-log" class="w-full px-md py-4 font-label-caps text-xs bg-inverse-primary text-white hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-sm uppercase">
+                    <span class="material-symbols-outlined text-[20px]">database</span> Save & Log Run
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Config -->
+    <div id="config-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
+        <div class="w-full max-w-md bg-surface border border-outline shadow-lg">
+            <div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container-high">
+                <h2 class="font-label-caps text-xs text-on-surface tracking-widest uppercase">Database Configuration</h2>
+                <button id="close-config" class="text-on-surface-variant hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-md space-y-4">
+                <p class="text-xs text-on-surface-variant">Leave empty to use local storage. Enter Supabase URL and Anon Key to sync.</p>
+                <div>
+                    <label class="block text-xs font-label-caps text-on-surface-variant mb-1">Supabase URL</label>
+                    <input id="config-url" type="text" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-on-surface outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-label-caps text-on-surface-variant mb-1">Supabase Anon Key</label>
+                    <input id="config-key" type="password" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-on-surface outline-none">
+                </div>
+                <button id="btn-save-config" class="w-full bg-primary-container text-white py-2 font-label-caps text-xs mt-2">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

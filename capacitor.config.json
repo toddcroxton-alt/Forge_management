@@ -1,8 +1,7 @@
 {
   "appId": "com.forge.manager",
   "appName": "FORGE_MANAGER",
-  "webDir": ".",
-  "bundledWebRuntime": false,
+  "webDir": "www",
   "server": {
     "cleartext": true
   }
