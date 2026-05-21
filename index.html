@@ -92,6 +92,19 @@
         
         <!-- Tab: Dashboard -->
         <div id="tab-dashboard" class="tab-content active space-y-md">
+            <!-- Printers section -->
+            <div class="flex items-center justify-between mt-4">
+                <h2 class="font-label-caps text-xs text-on-surface-variant flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-[16px]">print</span> PRINTERS
+                </h2>
+                <button id="btn-add-printer" class="min-touch-target p-xs bg-primary-container text-white rounded font-label-caps text-xs px-4">
+                    + ADD PRINTER
+                </button>
+            </div>
+            <div id="dashboard-printers" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md pb-4">
+                <!-- Populated by JS -->
+            </div>
+
             <div class="flex items-center justify-between">
                 <h2 class="font-label-caps text-xs text-on-surface-variant flex items-center gap-xs">
                     <span class="material-symbols-outlined text-[16px]">warning</span> CRITICAL_INVENTORY
@@ -148,6 +161,9 @@
                 <h2 class="font-label-caps text-xs text-on-surface-variant flex items-center gap-xs">
                     <span class="material-symbols-outlined text-[16px]">inventory_2</span> INVENTORY_HUB
                 </h2>
+                <button id="btn-add-material" class="min-touch-target p-xs bg-primary-container text-white rounded font-label-caps text-xs px-4">
+                    + ADD MATERIAL
+                </button>
             </div>
             <div class="flex flex-col sm:flex-row gap-sm mb-lg">
                 <div class="flex-1 flex items-center bg-surface-container-low border border-outline-variant px-md py-sm rounded-xl focus-within:border-primary transition-all">
@@ -254,6 +270,67 @@
                     <input id="config-key" type="password" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-on-surface outline-none">
                 </div>
                 <button id="btn-save-config" class="w-full bg-primary-container text-white py-2 font-label-caps text-xs mt-2">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Add Material -->
+    <div id="add-material-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
+        <div class="w-full max-w-lg bg-surface border border-outline shadow-[0_0_50px_rgba(192,0,0,0.1)]">
+            <div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container-high">
+                <h2 class="font-label-caps text-xs text-on-surface tracking-widest uppercase">ADD MATERIAL</h2>
+                <button id="close-add-material" class="text-on-surface-variant hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-md space-y-md max-h-[80vh] overflow-y-auto">
+                <div class="space-y-sm">
+                    <h3 class="text-xs font-label-caps text-primary-container">SEARCH & RESTOCK</h3>
+                    <input id="search-material-input" type="text" placeholder="Search existing filaments..." class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-on-surface outline-none">
+                    <div id="search-material-results" class="space-y-2 mt-2"></div>
+                </div>
+                <div class="border-t border-outline-variant my-4"></div>
+                <div class="space-y-sm">
+                    <h3 class="text-xs font-label-caps text-primary-container">CREATE CUSTOM FILAMENT</h3>
+                    <div class="grid grid-cols-2 gap-md">
+                        <div><label class="text-[10px] text-on-surface-variant font-label-caps">BRAND</label><input id="new-mat-brand" type="text" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-sm text-on-surface outline-none"></div>
+                        <div><label class="text-[10px] text-on-surface-variant font-label-caps">NAME</label><input id="new-mat-name" type="text" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-sm text-on-surface outline-none"></div>
+                        <div><label class="text-[10px] text-on-surface-variant font-label-caps">TYPE</label><input id="new-mat-type" type="text" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-sm text-on-surface outline-none"></div>
+                        <div><label class="text-[10px] text-on-surface-variant font-label-caps">COLOR HEX</label><input id="new-mat-color" type="text" value="#ffffff" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-sm text-on-surface outline-none"></div>
+                        <div><label class="text-[10px] text-on-surface-variant font-label-caps">SKU</label><input id="new-mat-sku" type="text" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-sm text-on-surface outline-none"></div>
+                        <div><label class="text-[10px] text-on-surface-variant font-label-caps">RRP ($)</label><input id="new-mat-rrp" type="number" step="0.01" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-sm text-on-surface outline-none"></div>
+                        <div class="col-span-2"><label class="text-[10px] text-on-surface-variant font-label-caps">REORDER URL</label><input id="new-mat-url" type="text" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-sm text-on-surface outline-none"></div>
+                    </div>
+                    <button id="btn-create-material" class="w-full bg-primary-container text-white py-3 font-label-caps text-xs mt-4 hover:brightness-110">SAVE NEW MATERIAL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Add Printer -->
+    <div id="add-printer-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/90 backdrop-blur-md">
+        <div class="w-full max-w-lg bg-surface border border-outline shadow-[0_0_50px_rgba(192,0,0,0.1)]">
+            <div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container-high">
+                <h2 class="font-label-caps text-xs text-on-surface tracking-widest uppercase">ADD PRINTER</h2>
+                <button id="close-add-printer" class="text-on-surface-variant hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-md space-y-md max-h-[80vh] overflow-y-auto">
+                <div class="space-y-sm">
+                    <h3 class="text-xs font-label-caps text-primary-container">SEARCH EXISTING</h3>
+                    <input id="search-printer-input" type="text" placeholder="Search printers..." class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-on-surface outline-none">
+                    <div id="search-printer-results" class="space-y-2 mt-2"></div>
+                </div>
+                <div class="border-t border-outline-variant my-4"></div>
+                <div class="space-y-sm">
+                    <h3 class="text-xs font-label-caps text-primary-container">CREATE CUSTOM PRINTER</h3>
+                    <div class="grid grid-cols-2 gap-md">
+                        <div><label class="text-[10px] text-on-surface-variant font-label-caps">BRAND</label><input id="new-print-brand" type="text" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-sm text-on-surface outline-none"></div>
+                        <div><label class="text-[10px] text-on-surface-variant font-label-caps">MODEL</label><input id="new-print-model" type="text" class="w-full bg-surface-container-lowest border border-outline-variant p-2 text-sm text-on-surface outline-none"></div>
+                    </div>
+                    <button id="btn-create-printer" class="w-full bg-primary-container text-white py-3 font-label-caps text-xs mt-4 hover:brightness-110">SAVE NEW PRINTER</button>
+                </div>
             </div>
         </div>
     </div>

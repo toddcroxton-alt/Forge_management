@@ -29,6 +29,7 @@ function initApp() {
     setupTabs();
     setupConfigModal();
     setupCompletionModal();
+    setupAddModals();
     
     // Check config
     const supaUrl = localStorage.getItem('supa_url') || 'https://buzusggqhlnxiecupmuk.supabase.co';
